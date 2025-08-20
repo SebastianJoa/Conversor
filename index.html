@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Conversor – Traducción de Audio</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- TensorFlow.js -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.16.0/dist/tf.min.js"></script>
+</head>
+<body class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 min-h-screen flex items-center justify-center font-sans">
+
+
+<div class="bg-white rounded-2xl shadow-2xl p-8 max-w-xl w-full text-center">
+<h1 class="text-3xl font-bold text-indigo-600 mb-6">🎤 Conversor de Audio y Traducción</h1>
+
+
+<!-- Selección de archivo -->
+<div class="mb-4">
+<label class="block text-gray-700 font-medium mb-2">Subir archivo de audio</label>
+<input id="audioFile" type="file" accept="audio/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
+file:rounded-full file:border-0 file:text-sm file:font-semibold
+file:bg-indigo-50 file:text-indigo-600
+hover:file:bg-indigo-100" />
+</div>
+
+
+<!-- Botones de control -->
+<div class="flex flex-col md:flex-row justify-center gap-4 mb-6">
+<button id="recordBtn" class="px-6 py-2 bg-indigo-600 text-white rounded-full shadow hover:bg-indigo-700 transition">🎙️ Grabar</button>
+<button id="stopBtn" disabled class="px-6 py-2 bg-gray-400 text-white rounded-full shadow transition">⏹️ Detener</button>
+<button id="analyzeBtn" class="px-6 py-2 bg-green-600 text-white rounded-full shadow hover:bg-green-700 transition">🔎 Analizar</button>
+</div>
+
+
+<!-- Resultados -->
+<div class="bg-gray-100 rounded-lg p-4 text-left">
+<h2 class="text-xl font-semibold text-gray-700 mb-2">Resultados</h2>
+<p class="text-sm text-gray-600"><strong>Transcripción:</strong></p>
+<p id="transcription" class="mb-4 text-gray-800">–</p>
+
+
+<p class="text-sm text-gray-600"><strong>Traducción:</strong></p>
+<p id="translation" class="mb-4 text-gray-800">–</p>
+
+
+<audio id="audioPlayer" controls class="w-full mt-2 hidden"></audio>
+</div>
+</div>
+
+
+<script>
+let mediaRecorder;
+let audioChunks = [];
+
+
+const recordBtn = document.getElementById("recordBtn");
+const stopBtn = document.getElementById("stopBtn");
+const analyzeBtn = document.getElementById("analyzeBtn");
+const audioPlayer = document.getElementById("audioPlayer");
+const transcriptionEl = document.getElementById("transcription");
+const translationEl = document.getElementById("translation");
+
+
+// Iniciar grabación
+recordBtn.onclick = async () => {
+const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+mediaRecorder = new MediaRecorder(stream);
+audioChunks = [];
+mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
+mediaRecorder.onstop = () => {
+const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+const audioUrl = URL.createObjectURL(audioBlob);
+audioPlayer.src = audioUrl;
+audioPlayer.classList.remove("hidden");
+};
+mediaRecorder.start();
+recordBtn.disabled = true;
+stopBtn.disabled = false;
+recordBtn.classList.add("bg-gray-400");
+recordBtn.classList.remove("bg-indigo-600");
+};
+
+
+// Detener grabación
+stopBtn.onclick = () => {
+mediaRecorder.stop();
+recordBtn.disabled = false;
+stopBtn.disabled = true;
+recordBtn.classList.remove("bg-gray-400");
+recordBtn.classList.add("bg-indigo-600");
+};
+
+
+// Simulación de análisis (debes conectar tu modelo aquí)
+analyzeBtn.onclick = () => {
+transcriptionEl.textContent = "(Demo) Transcripción de audio";
+translationEl.textContent = "(Demo) Traducción al español";
+};
+</script>
+</body>
+</html>
